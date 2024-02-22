@@ -1,4 +1,4 @@
-#!REPLACE_WITH_PROPER_SHEBANG_LINE
+#!/usr/bin/env python
 
 # Author: Markus Stabrin 2020 (markus.stabrin@mpi-dortmund.mpg.de)
 # Author: Fabian Schoenfeld 2020 (fabian.schoenfeld@mpi-dortmund.mpg.de)
@@ -119,8 +119,11 @@ global GPU_DEVICES     # global list of cuda gpu id values
 GPU_DEVICES = []
 
 # import cuda module
-CUDA_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "..", "cuda", "")
-cu_module = ctypes.CDLL( CUDA_PATH + "gpu_aln_pack.so" )
+CONDA_PREFIX = os.getenv('CONDA_PREFIX')
+if not CONDA_PREFIX:
+    raise RuntimeError('$CONDA_PREFIX is not defined; please activate GPU-ISAC conda environment.')
+CUDA_PATH = os.path.join(CONDA_PREFIX, 'lib')
+cu_module = ctypes.CDLL( os.path.join(CUDA_PATH, "gpu_aln_pack.so" ) )
 
 # cuda alignment definitions: classes
 class Freezeable( object ):

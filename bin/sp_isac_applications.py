@@ -85,8 +85,13 @@ except ImportError:
 ###############################################################
 ########################################################### GPU
 
-CUDA_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "..", "cuda", "")
-cu_module = ctypes.CDLL( CUDA_PATH + "gpu_aln_pack.so" )
+# import cuda module
+CONDA_PREFIX = os.getenv('CONDA_PREFIX')
+if not CONDA_PREFIX:
+    raise RuntimeError('$CONDA_PREFIX is not defined; please activate GPU-ISAC conda environment.')
+CUDA_PATH = os.path.join(CONDA_PREFIX, 'lib')
+cu_module = ctypes.CDLL( os.path.join(CUDA_PATH, "gpu_aln_pack.so" ) )
+
 float_ptr = ctypes.POINTER(ctypes.c_float)
 
 cu_module.reset_shifts.argtypes = [ ctypes.c_float, ctypes.c_float ]
@@ -127,8 +132,8 @@ class AlignParam( ctypes.Structure, Freezeable ):
                  ("angle",   ctypes.c_float),
                  ("mirror",  ctypes.c_bool) ]
     def __str__(self):
-            return "s_%d/r_%d::(%d,%d;%.2f)" % (self.sbj_id, self.ref_id, self.shift_x, self.shift_y, self.angle) \
-                    +("[M]" if self.mirror else "")
+        return "s_%d/r_%d::(%d,%d;%.2f)" % (self.sbj_id, self.ref_id, self.shift_x, self.shift_y, self.angle) \
+               +("[M]" if self.mirror else "")
 
 aln_param_ptr = ctypes.POINTER(AlignParam)
 
